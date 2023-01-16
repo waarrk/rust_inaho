@@ -7,7 +7,7 @@ use std::fs::File;
 use std::process;
 
 #[test]
-fn ieee745形式() {
+fn ieee745_test() {
     let file = File::open("datas/confirmation/k1-input.csv").unwrap();
     let expected_output = 0b0100000001001010101100000000000000000000000000000000000000000000;
     let result = csv_parse(file);

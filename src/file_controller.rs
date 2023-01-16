@@ -1,18 +1,31 @@
+#[allow(dead_code)]
 pub mod args {
     use std::env;
     use std::error::Error;
     use std::ffi::OsString;
 
-    pub fn get_first() -> Result<OsString, Box<dyn Error>> {
-        match env::args_os().nth(1) {
-            None => Err(From::from("expected 1 argument, but got none")),
+    pub fn get(num: usize) -> Result<OsString, Box<dyn Error>> {
+        match env::args_os().nth(num) {
+            None => Err(From::from("expected argument, but got none")),
             Some(file_path) => Ok(file_path),
         }
     }
+
+    pub fn get_all() -> Result<Vec<OsString>, Box<dyn Error>> {
+        let mut args = env::args_os();
+        args.next();
+        let mut file_paths = Vec::new();
+        for arg in args {
+            file_paths.push(arg);
+        }
+        Ok(file_paths)
+    }
 }
 
+#[allow(dead_code)]
+#[allow(unused_imports)]
 pub mod file_io {
-    use ndarray::{Array, Array2};
+    use ndarray::{arr2, Array, Array2};
     use std::error::Error;
     use std::ffi::OsString;
     use std::fs::File;
@@ -39,5 +52,15 @@ pub mod file_io {
             data.into_iter().flatten().collect(),
         )?;
         Ok(ndarray)
+    }
+
+    #[test]
+    fn csv_to_ndarray_test() {
+        let file = File::open("datas/confirmation/k2-input1.csv").unwrap();
+        let expected_output: Array2<f64> =
+            arr2(&[[2.0, 8.0, 4.0], [3.0, 2.0, -1.0], [7.0, -1.0, 3.0]]);
+        let result = csv_to_ndarray(file);
+        let result = result.unwrap();
+        assert_eq!(result, expected_output);
     }
 }
